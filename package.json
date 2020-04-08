@@ -1,0 +1,19 @@
+{
+  "name": "frontend-controle-clientes",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "http-server",
+    "dev": "http-server -a 127.0.0.1 -p 9000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.13.0",
+    "angular-input-masks": "^4.4.1",
+    "http-server": "^0.12.1"
+  }
+}

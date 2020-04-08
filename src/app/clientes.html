@@ -1,0 +1,361 @@
+<link rel="stylesheet" href="/node_modules/@fortawesome/fontawesome-free/css/all.css" />
+<script src="../../assets/js/sweetalert.min.js"></script>
+
+<title>Clientes</title>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="collapse navbar-collapse" id="navbarText">
+        <img src="../imgs/icon_reading.svg" style="width: 62px;">
+        <ul class="navbar-nav mr-auto" style="margin-left: 15px;">
+            <li class="nav-item active">
+                <label style="color: white; font-size: 22px;"> Bem Vindo {{nomeUsuario}}</label>
+            </li>
+        </ul>
+    </div>
+    <button type="button" class="btn btn-outline-primary" style="margin-right: 10px;" ng-click="abreModalAddCliente()">
+        <i class="fas fa-plus"></i>
+        Clientes
+    </button>
+
+    <form class="form-inline">
+        <input class="form-control mr-sm-2" type="text" placeholder="Filtro" ng-model="filtro"/>
+    </form>
+</nav>
+<div class="container">
+    <div class="row" style="margin-top: 35px; ">
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+                <tr>
+                    <th scope="col" width="5%">#</th>
+                    <th scope="col" width="20%">CPF/CNPJ</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col" width="15%">Telefone/Endereço</th>
+                    <th scope="col" width="15%">Endereço</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr pagination-id="tableClientes" dir-paginate="z in listaClientes|filter: filtro|itemsPerPage:9">
+                    <td>{{z.id}}</td>
+                    <td>{{z.cpfCnpj | mask: z.cpfCnpj.length==11 ? '999.999.999-99' : '99.999.999/9999-99'}}</td>
+                    <td>{{z.nome}}</td>
+                    <td style="text-align: center;">
+                        <button type="button" class="btn btn-primary" ng-click="abreModalVisualizaDados(z.id)">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </td>
+                    <td style="text-align: center;">
+                        <button type="button" class="btn btn-secondary" ng-click="abreModalAddEndereco(z.id)">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <dir-pagination-controls
+                class="float-right"
+                max-size="7"
+                boundary-links="true"
+                pagination-id="tableClientes"
+                template-url="dirPagination.tpl.html">
+            </dir-pagination-controls>
+        </div>
+    </div>
+    
+</div>
+<div class="modal fade bd-example-modal-lg" id="modalAddCliente" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add. Cliente</h5>
+                <button type="button" class="close" ng-click="fechaModalAddCliente()">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form name="formCliente">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="cpf_cnpj" class="col-form-label">CPF/CNPJ:</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="cpf_cnpj" 
+                                       name="cpf_cnpj" 
+                                       ng-class="(formCliente.cpf_cnpj.$invalid && formCliente.cpf_cnpj.$dirty) ? 'is-invalid' : ''"
+                                       ng-model="objCliente.cpfCnpj" 
+                                       ui-br-cpfcnpj-mask 
+                                       required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="nome_cliente" class="col-form-label">Nome:</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="nome_cliente" 
+                                       name="nome_cliente" 
+                                       ng-class="(formCliente.nome_cliente.$invalid && formCliente.nome_cliente.$dirty) ? 'is-invalid' : ''"
+                                       ng-model="objCliente.nome" 
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group mb-3">
+                                <input type="text" 
+                                       class="form-control" 
+                                       name="telefone" 
+                                       placeholder="Telefone" 
+                                       ng-model="numeroCliente.numero" 
+                                       ui-br-phone-number-mask="areaCode">
+
+                                <div class="input-group-append">
+                                    <button class="btn btn-success" 
+                                            type="button" 
+                                            id="btn_adicionar" 
+                                            ng-click="addNumero()" 
+                                            ng-disabled="formCliente.telefone.$invalid || numeroCliente.numero==''">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" ng-repeat="(key, value) in listaNumeros track by $index">
+                        <div class="col-md-6">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" ng-model="value.numero" ui-br-phone-number-mask="areaCode" ng-disabled="true">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-danger" type="button" id="btn_remove" ng-click="removeNumero(key)">
+                                        <i class="fas fa-minus-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" ng-click="fechaModalAddCliente()">Cancelar</button>
+                <button type="button" class="btn btn-primary" ng-disabled="formCliente.$invalid || (listaNumeros.length==0)" ng-click="salvaCliente()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-lg" id="modalAddEndereco" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Add. Endereço</h5>
+                <button type="button" class="close" ng-click="fechaModalAddEndereco()">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form name="formEndereco">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="pais" class="col-form-label">País:</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="pais" 
+                                       name="pais" 
+                                       ng-class="(formEndereco.pais.$invalid && formEndereco.pais.$dirty) ? 'is-invalid' : ''"
+                                       ng-model="objEndereco.pais" 
+                                       required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="estado" class="col-form-label">Estado:</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="estado" 
+                                       name="estado" 
+                                       ng-class="(formEndereco.estado.$invalid && formEndereco.estado.$dirty) ? 'is-invalid' : ''"
+                                       ng-model="objEndereco.estado" 
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="cidade" class="col-form-label">Cidade:</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="cidade" 
+                                       name="cidade" 
+                                       ng-class="(formEndereco.cidade.$invalid && formEndereco.cidade.$dirty) ? 'is-invalid' : ''"
+                                       ng-model="objEndereco.cidade" 
+                                       required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="bairro" class="col-form-label">Bairro:</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="bairro" 
+                                       name="bairro" 
+                                       ng-class="(formEndereco.bairro.$invalid && formEndereco.bairro.$dirty) ? 'is-invalid' : ''"
+                                       ng-model="objEndereco.bairro" 
+                                       required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="rua" class="col-form-label">Rua:</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="rua" 
+                                       name="rua" 
+                                       ng-class="(formEndereco.rua.$invalid && formEndereco.rua.$dirty) ? 'is-invalid' : ''"
+                                       ng-model="objEndereco.rua" 
+                                       required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="numero" class="col-form-label">Nº:</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="numero" 
+                                       name="numero" 
+                                       ng-class="(formEndereco.numero.$invalid && formEndereco.numero.$dirty) ? 'is-invalid' : ''"
+                                       ng-model="objEndereco.numero" 
+                                       required
+                                       ui-number-mask="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" ng-model="objEndereco.status" id="principal">
+                                <label class="form-check-label" for="principal">
+                                    Endereço Principal
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" ng-click="fechaModalAddEndereco()">Cancelar</button>
+                <button type="button" class="btn btn-primary" ng-disabled="formEndereco.$invalid" ng-click="salvaEndereco()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade bd-example-modal-xl" id="modalVisualizaDados" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Endereços e Telefones</h5>
+                <button type="button" class="close" ng-click="fechaModalVisualizaDados()">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div style="width: 30%; display: inline-block;">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <form name="formEndereco">
+                                <div class="input-group mb-3">
+                                    <input type="text" 
+                                        class="form-control" 
+                                        name="telefone" 
+                                        placeholder="Telefone" 
+                                        ng-model="numeroCliente.numero" 
+                                        ui-br-phone-number-mask="areaCode">
+    
+                                    <div class="input-group-append">
+                                        <button class="btn btn-success" 
+                                                type="button" 
+                                                id="btn_adicionar" 
+                                                ng-click="addNumeroReq()" 
+                                                ng-disabled="formEndereco.telefone.$invalid || numeroCliente.numero==''">Add</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row" ng-repeat="(key, value) in listaNumeros track by $index">
+                        <div class="col-md-10">
+                            <div class="input-group mb-3">
+                                <input type="text" class="form-control" ng-model="value.numero" ui-br-phone-number-mask="areaCode" ng-disabled="true">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-danger" type="button" ng-click="removeNumeroReq(value.id)">
+                                        <i class="fas fa-minus-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="width: 70%; float: right; padding-right: 15px;">
+                    <div class="row">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>País</th>
+                                    <th>Estado</th>
+                                    <th>Cidade</th>
+                                    <th>Bairro</th>
+                                    <th>Rua</th>
+                                    <th>Nº</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr pagination-id="tableEnderecos" dir-paginate="e in enderecos|orderBy: '-status'|itemsPerPage:6">
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        <i class="fas fa-star" style="color: #f5f52c;" ng-show="e.status=='P'" title="Endereço Principal"></i>
+                                    </td>
+                                    <td>{{e.pais}}</td>
+                                    <td>{{e.estado}}</td>
+                                    <td>{{e.cidade}}</td>
+                                    <td>{{e.bairro}}</td>
+                                    <td>{{e.rua}}</td>
+                                    <td>{{e.numero}}</td>
+                                    <td style="text-align: center; vertical-align: middle;">
+                                        <button type="button" class="btn btn-danger" ng-click="deletaEndereco(e.id)" ng-show="e.status!='P'">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+
+                                        <button type="button" class="btn btn-danger" ng-click="deletaEndereco(e.id)" ng-disabled="e.status=='P'" ng-show="e.status=='P'" title="Não é possível apagar um Endereço Principal. É necessario adicionar outro como Principal e depois deletar o antigo.">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <dir-pagination-controls
+                                class="float-right"
+                                max-size="7"
+                                boundary-links="true"
+                                pagination-id="tableEnderecos"
+                                template-url="dirPagination.tpl.html">
+                            </dir-pagination-controls>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" ng-click="fechaModalVisualizaDados()">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
