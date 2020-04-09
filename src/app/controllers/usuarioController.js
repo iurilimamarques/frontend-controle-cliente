@@ -39,9 +39,7 @@ var app = angular.module('controleClienteApp');
                         'Authorization': 'Basic '+window.btoa(CLIENT_ID+':'+CLIENT_SECRET)
                 },
                 data: $scope.usuarioLogin
-            }).then(function(retorno) {    
-                console.log(retorno.data);
-                     
+            }).then(function(retorno) {                         
                 if (retorno.data.response==null) {
                     $scope.formLogin.$setPristine();
                     $scope.erroLogin = 'Usuário ou senha incorreto!';
