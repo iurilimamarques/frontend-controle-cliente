@@ -58,8 +58,5 @@ var app = angular.module('controleClienteApp');
                 console.log(erro);
             });
         }
-
-        $scope.getToken();
-
         
     });
