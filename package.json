@@ -14,6 +14,6 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.0",
     "angular-input-masks": "^4.4.1",
-    "http-server": "^0.12.1"
+    "http-server": "^0.12.3"
   }
 }
